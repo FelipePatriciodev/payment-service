@@ -3,8 +3,10 @@ package com.desafio.paymentservice.domain.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.desafio.paymentservice.domain.model.Payment;
 import com.desafio.paymentservice.domain.model.PaymentMethodType;
@@ -12,6 +14,7 @@ import com.desafio.paymentservice.domain.model.PaymentStatus;
 import com.desafio.paymentservice.infrastructure.kafka.PaymentProducer;
 import com.desafio.paymentservice.infrastructure.repository.PaymentRepository;
 import com.desafio.paymentservice.infrastructure.repository.ProductRepository;
+import com.desafio.paymentservice.web.dto.PaymentEventDto;
 import com.desafio.paymentservice.web.dto.PaymentRequestDto;
 import com.desafio.paymentservice.web.dto.PaymentResponseDto;
 import com.desafio.paymentservice.web.dto.ProductItemDto;
@@ -37,7 +40,9 @@ public class PaymentService {
             }
 
             var product = productRepository.findByUuid(item.getProductId())
-                    .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado: " + item.getProductId()));
+            		.orElseThrow(() -> new ResponseStatusException(
+            			    HttpStatus.NOT_FOUND, "Produto não encontrado: " + item.getProductId()
+            			));
 
             BigDecimal itemTotal = product.getPrice()
                     .multiply(item.getQuantity());
@@ -76,7 +81,19 @@ public class PaymentService {
                 payment.getMethodType(),
                 payment.getFinalAmount()
         );
-        paymentProducer.sendPaymentEvent(eventMessage);
+        PaymentEventDto event = PaymentEventDto.builder()
+                .id(payment.getUuid().toString()) 
+                .status(payment.getStatus().name())
+                .methodType(payment.getMethodType().name())
+                .originalAmount(originalAmount)
+                .appliedDiscount(appliedDiscount)
+                .finalAmount(finalAmount)
+                .cashbackAmount(cashbackAmount)
+                .createdAt(payment.getCreatedAt().toString()) 
+                .build();
+
+        paymentProducer.sendPaymentEvent(event);
+
 
         return PaymentResponseDto.builder()
                 .id(payment.getUuid())
