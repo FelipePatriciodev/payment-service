@@ -1,6 +1,7 @@
 package com.desafio.paymentservice.domain.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -10,6 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -53,8 +55,21 @@ public class Payment {
     @Column(nullable = false, length = 20)
     private PaymentStatus status;
 
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
     // Builder com UUID automático
     public static PaymentBuilder builder() {
         return new PaymentBuilder().uuid(UUID.randomUUID());
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (uuid == null) {
+            uuid = UUID.randomUUID();
+        }
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
 }
