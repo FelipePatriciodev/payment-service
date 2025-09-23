@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.desafio.paymentservice.domain.model.Payment;
 import com.desafio.paymentservice.domain.model.PaymentMethodType;
 import com.desafio.paymentservice.domain.model.PaymentStatus;
+import com.desafio.paymentservice.infrastructure.kafka.PaymentProducer;
 import com.desafio.paymentservice.infrastructure.repository.PaymentRepository;
 import com.desafio.paymentservice.infrastructure.repository.ProductRepository;
 import com.desafio.paymentservice.web.dto.PaymentRequestDto;
@@ -23,13 +24,14 @@ public class PaymentService {
 
     private final ProductRepository productRepository;
     private final PaymentRepository paymentRepository;
+    private final PaymentProducer paymentProducer; 
 
     @Transactional
     public PaymentResponseDto processPayment(PaymentRequestDto request) {
         BigDecimal originalAmount = BigDecimal.ZERO;
 
         for (ProductItemDto item : request.getProducts()) {
-            // 🚦 Sanidade extra: quantity nunca pode ser <= 0
+            //quantity nunca pode ser <= 0
             if (item.getQuantity() == null || item.getQuantity().compareTo(BigDecimal.ONE) < 0) {
                 throw new IllegalArgumentException("Quantidade inválida para o produto: " + item.getProductId());
             }
@@ -65,6 +67,16 @@ public class PaymentService {
                 .build();
 
         paymentRepository.save(payment);
+
+        //Evento no Kafka
+        String eventMessage = String.format(
+                "{ \"id\": \"%s\", \"status\": \"%s\", \"methodType\": \"%s\", \"finalAmount\": %.2f }",
+                payment.getUuid(),
+                payment.getStatus(),
+                payment.getMethodType(),
+                payment.getFinalAmount()
+        );
+        paymentProducer.sendPaymentEvent(eventMessage);
 
         return PaymentResponseDto.builder()
                 .id(payment.getUuid())
