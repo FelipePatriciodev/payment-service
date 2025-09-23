@@ -2,7 +2,6 @@ package com.desafio.paymentservice.web.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 import com.desafio.paymentservice.domain.model.PaymentMethodType;
 
@@ -18,7 +17,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class PaymentResponseDto {
-    private UUID id;
+	private String id;
     private BigDecimal originalAmount;
     private BigDecimal appliedDiscount;
     private BigDecimal finalAmount;

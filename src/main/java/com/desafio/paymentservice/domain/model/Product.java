@@ -26,9 +26,9 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @Column(nullable = false, unique = true, updatable = false, length = 36)
-    private UUID uuid;
+    private String uuid; // agora String
 
     @Column(nullable = false, length = 100)
     private String name;
@@ -36,9 +36,10 @@ public class Product {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-    // Construtor customizado para o builder
+    // Construtor customizado para garantir UUID
     public static ProductBuilder builder() {
-        return new ProductBuilder().uuid(UUID.randomUUID());
+        return new ProductBuilder().uuid(UUID.randomUUID().toString());
     }
 }
+
 

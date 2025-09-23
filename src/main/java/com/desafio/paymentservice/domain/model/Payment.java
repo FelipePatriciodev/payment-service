@@ -33,7 +33,7 @@ public class Payment {
     private Long id;
 
     @Column(nullable = false, unique = true, updatable = false, length = 36)
-    private UUID uuid;
+    private String uuid; // agora String
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal originalAmount;
@@ -42,10 +42,10 @@ public class Payment {
     private BigDecimal finalAmount;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal cashbackAmount;
+    private BigDecimal appliedDiscount;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal appliedDiscount;
+    private BigDecimal cashbackAmount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -58,18 +58,14 @@ public class Payment {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // Builder com UUID automático
-    public static PaymentBuilder builder() {
-        return new PaymentBuilder().uuid(UUID.randomUUID());
-    }
-
     @PrePersist
     public void prePersist() {
         if (uuid == null) {
-            uuid = UUID.randomUUID();
+            uuid = UUID.randomUUID().toString();
         }
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
     }
 }
+
