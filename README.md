@@ -4,6 +4,14 @@ Microsserviço de pagamentos desenvolvido em **Java 17 com Spring Boot**, que pr
 O serviço também publica eventos no **Kafka** e registra logs ao consumi-los.
 
 ---
+## Pré-requisitos
+
+Antes de rodar a aplicação, certifique-se de ter instalado:
+
+- **Java 17** (JDK)
+- **Maven** (caso não use o wrapper `./mvnw`)
+- **Docker** e **Docker Compose**
+- (Opcional) **Postman** ou **cURL** para testar os endpoints
 
 ## Tecnologias utilizadas
 - Java 17
@@ -12,6 +20,27 @@ O serviço também publica eventos no **Kafka** e registra logs ao consumi-los.
 - Kafka (Producer/Consumer)
 - JUnit 5 + Spring Boot Test
 - Docker Compose (para subir Kafka + Zookeeper)
+
+---
+## Banco de Dados
+
+A aplicação utiliza **MariaDB** como banco de dados.
+
+1. Certifique-se de que o MariaDB está rodando localmente.
+
+   Por padrão, a aplicação espera acesso em:
+
+   ```
+   url: jdbc:mariadb://localhost:3306/payments
+   username: root
+   password: 
+   ```
+
+2. Crie o banco de dados **manualmente** antes de iniciar a aplicação:
+
+   ```sql
+   CREATE DATABASE payments;
+   ```
 
 ---
 
