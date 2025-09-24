@@ -84,7 +84,7 @@ Corpo esperado:
 {
   "paymentMethodType": "PIX",
   "products": [
-    { "productId": "UUID_DO_PRODUTO", "quantity": 1 }
+    { "product_id": "UUID_DO_PRODUTO", "quantity": 1 }
   ]
 }
 ```
